@@ -1,0 +1,1216 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mario Party Jamboree Tracker</title>
+    <style>
+        :root {
+            /* Light theme colors */
+            --bg-color: #f5f5f5;
+            --bg-gradient: linear-gradient(135deg, #f5f5f5, #e8e8e8);
+            --card-bg: #ffffff;
+            --card-gradient: linear-gradient(to bottom, #ffffff, #f8f8f8);
+            --text-color: #333333;
+            --accent-color: #e60012;
+            --accent-gradient: linear-gradient(to bottom, #ff1a2d, #e60012);
+            --secondary-color: #4caf50;
+            --secondary-gradient: linear-gradient(to bottom, #5cb860, #4caf50);
+            --border-color: #dddddd;
+            --shadow: 0 2px 8px rgba(0,0,0,0.08);
+            --card-shadow: 0 3px 12px rgba(0,0,0,0.07);
+            --highlight: #f9f9f9;
+            --blue-space: #2196f3;
+            --blue-space-gradient: linear-gradient(to bottom, #42a5f5, #2196f3);
+            --blue-space-hover: #1976d2;
+        }
+        
+        [data-theme="dark"] {
+            --bg-color: #222222;
+            --bg-gradient: linear-gradient(135deg, #222222, #1a1a1a);
+            --card-bg: #333333;
+            --card-gradient: linear-gradient(to bottom, #3a3a3a, #333333);
+            --text-color: #f5f5f5;
+            --accent-color: #ff5c5c;
+            --accent-gradient: linear-gradient(to bottom, #ff7272, #ff5c5c);
+            --secondary-color: #6abf69;
+            --secondary-gradient: linear-gradient(to bottom, #7ac979, #6abf69);
+            --border-color: #444444;
+            --shadow: 0 2px 10px rgba(0,0,0,0.3);
+            --card-shadow: 0 4px 16px rgba(0,0,0,0.2);
+            --highlight: #3a3a3a;
+            --blue-space: #1976d2;
+            --blue-space-gradient: linear-gradient(to bottom, #2196f3, #1976d2);
+            --blue-space-hover: #1565c0;
+        }
+        
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            transition: background-color 0.3s, color 0.3s;
+        }
+        
+        body {
+            background: var(--bg-gradient);
+            color: var(--text-color);
+            padding: 20px;
+            line-height: 1.6;
+            min-height: 100vh;
+        }
+        
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+        }
+        
+        .header {
+            text-align: center;
+            margin-bottom: 20px;
+            padding: 15px;
+            position: relative;
+        }
+        
+        h1 {
+            font-size: 2rem;
+            color: var(--accent-color);
+            margin-bottom: 5px;
+            text-shadow: 0 1px 1px rgba(0,0,0,0.1);
+            position: relative;
+            display: inline-block;
+        }
+        
+        h1:after {
+            content: '';
+            position: absolute;
+            bottom: -5px;
+            left: 25%;
+            width: 50%;
+            height: 2px;
+            background: var(--accent-gradient);
+            border-radius: 2px;
+        }
+        
+        h2 {
+            font-size: 1.2rem;
+            font-weight: normal;
+            color: var(--secondary-color);
+            text-shadow: 0 1px 1px rgba(0,0,0,0.05);
+        }
+        
+        .mode-toggle {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            background: none;
+            border: none;
+            color: var(--text-color);
+            cursor: pointer;
+            font-size: 1.5rem;
+        }
+        
+        .grid {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 20px;
+        }
+        
+        .card {
+            background: var(--card-gradient);
+            border-radius: 12px;
+            padding: 20px;
+            box-shadow: var(--card-shadow);
+            border: 1px solid rgba(255,255,255,0.1);
+            transition: all 0.3s ease;
+        }
+        
+        .card:hover {
+            box-shadow: var(--card-shadow), 0 0 0 1px rgba(0,0,0,0.02);
+        }
+        
+        .card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+            padding-bottom: 10px;
+            border-bottom: 1px solid var(--border-color);
+        }
+        
+        .card-title {
+            font-size: 1.2rem;
+            color: var(--accent-color);
+        }
+        
+        /* Character selector */
+        .character-selector {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+        
+        .character-item {
+            background-color: var(--card-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            padding: 6px 12px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+        }
+        
+        .character-item:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+        }
+        
+        .character-item.selected {
+            background: var(--card-gradient);
+            border-color: var(--accent-color);
+            font-weight: bold;
+            box-shadow: 0 3px 6px rgba(0,0,0,0.12);
+        }
+        
+        .character-image {
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            width: 24px;
+            height: 24px;
+            font-size: 14px;
+        }
+        
+        /* Data tables */
+        .data-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+        }
+        
+        @media (max-width: 768px) {
+            .data-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+        
+        .data-card {
+            background: var(--card-gradient);
+            border-radius: 10px;
+            padding: 15px;
+            box-shadow: var(--shadow);
+            border: 1px solid rgba(255,255,255,0.05);
+            transition: transform 0.2s ease;
+        }
+        
+        .data-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.08);
+        }
+        
+        .data-title {
+            font-size: 1.1rem;
+            margin-bottom: 15px;
+            padding-bottom: 8px;
+            border-bottom: 1px solid var(--border-color);
+            color: var(--accent-color);
+            position: relative;
+            font-weight: 600;
+        }
+        
+        .data-title:after {
+            content: '';
+            position: absolute;
+            bottom: -1px;
+            left: 0;
+            width: 40px;
+            height: 3px;
+            background: var(--accent-gradient);
+            border-radius: 2px;
+        }
+        
+        .data-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        
+        .data-table th {
+            text-align: left;
+            padding: 8px;
+            border-bottom: 1px solid var(--border-color);
+        }
+        
+        .data-table td {
+            padding: 8px;
+            border-bottom: 1px solid var(--border-color);
+        }
+        
+        .data-table tr:last-child td {
+            border-bottom: none;
+        }
+        
+        .character-info {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            flex-grow: 1;
+        }
+        
+        .coin-controls, .event-controls {
+            display: flex;
+            gap: 5px;
+        }
+        
+        .control-btn {
+            width: 28px;
+            height: 28px;
+            border-radius: 6px;
+            border: 1px solid var(--border-color);
+            background: var(--card-gradient);
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.2s;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.08);
+            font-weight: bold;
+        }
+        
+        .control-btn:hover {
+            background-color: var(--highlight);
+            transform: scale(1.1);
+            box-shadow: 0 2px 5px rgba(0,0,0,0.12);
+        }
+        
+        .control-btn:active {
+            transform: scale(0.95);
+        }
+        
+        .blue-space-btn {
+            background-color: var(--blue-space);
+            color: white;
+            border: none;
+            width: 28px;
+            height: 28px;
+            border-radius: 50%;
+            cursor: pointer;
+            font-weight: bold;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .blue-space-btn:hover {
+            background-color: var(--blue-space-hover);
+            transform: scale(1.05);
+        }
+        
+        .made-by {
+            position: absolute;
+            bottom: 5px;
+            right: 20px;
+            font-size: 0.8rem;
+            color: #888;
+            font-style: italic;
+        }
+        
+        .event-btn {
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            width: 28px;
+            height: 28px;
+            border-radius: 50%;
+            cursor: pointer;
+            font-weight: bold;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .event-btn:hover {
+            background-color: #388e3c;
+            transform: scale(1.05);
+        }
+        
+        /* Blue space options */
+        .blue-space-options {
+            display: flex;
+            gap: 15px;
+            align-items: center;
+            margin: 10px 0;
+            padding: 10px;
+            background-color: var(--highlight);
+            border-radius: 6px;
+            border: 1px solid var(--border-color);
+        }
+        
+        .blue-space-options label {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            cursor: pointer;
+        }
+        
+        .blue-space-value {
+            font-weight: bold;
+            margin-left: auto;
+            padding: 3px 12px;
+            background: var(--blue-space-gradient);
+            color: white;
+            border-radius: 20px;
+            box-shadow: 0 2px 4px rgba(33, 150, 243, 0.25);
+            text-shadow: 0 1px 1px rgba(0,0,0,0.1);
+        }
+        
+        /* Direct coin input grid */
+        .direct-input-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+            gap: 10px;
+            margin-top: 15px;
+            padding-top: 15px;
+            border-top: 1px solid var(--border-color);
+        }
+        
+        .direct-input-item {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 8px;
+            padding: 8px 10px;
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            background: var(--card-gradient);
+            box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+            transition: all 0.2s ease;
+        }
+        
+        .direct-input-item:hover {
+            box-shadow: 0 3px 8px rgba(0,0,0,0.08);
+            transform: translateY(-1px);
+        }
+        
+        .direct-input-item input {
+            width: 60px;
+            padding: 6px 8px;
+            border: 1px solid var(--border-color);
+            border-radius: 6px;
+            background-color: var(--card-bg);
+            color: var(--text-color);
+            box-shadow: inset 0 1px 3px rgba(0,0,0,0.05);
+            transition: all 0.2s ease;
+            font-weight: 500;
+            text-align: center;
+        }
+        
+        .direct-input-item input:focus {
+            border-color: var(--accent-color);
+            box-shadow: inset 0 1px 3px rgba(0,0,0,0.05), 0 0 0 2px rgba(230, 0, 18, 0.1);
+            outline: none;
+        }
+        
+        .direct-input-item button {
+            padding: 5px 12px;
+            background: var(--accent-gradient);
+            color: white;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: 500;
+            box-shadow: 0 2px 5px rgba(230, 0, 18, 0.25);
+            transition: all 0.2s ease;
+        }
+        
+        .direct-input-item button:hover {
+            background: linear-gradient(to bottom, #ff2a3c, #f50012);
+            transform: translateY(-2px) scale(1.05);
+            box-shadow: 0 4px 8px rgba(230, 0, 18, 0.35);
+        }
+        
+        .direct-input-item button:active {
+            transform: translateY(1px) scale(0.98);
+            box-shadow: 0 1px 3px rgba(230, 0, 18, 0.3);
+        }
+        
+        /* History section */
+        .history {
+            margin-top: 20px;
+        }
+        
+        .history-list {
+            max-height: 200px;
+            overflow-y: auto;
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+        }
+        
+        .history-item {
+            padding: 10px;
+            border-bottom: 1px solid var(--border-color);
+            display: flex;
+            justify-content: space-between;
+        }
+        
+        .history-item:last-child {
+            border-bottom: none;
+        }
+        
+        .history-action {
+            display: flex;
+            gap: 5px;
+            align-items: center;
+        }
+        
+        .undo-btn {
+            padding: 3px 8px;
+            background-color: var(--accent-color);
+            color: white;
+            border: none;
+            border-radius: 4px;
+            font-size: 0.8rem;
+            cursor: pointer;
+        }
+        
+        .undo-btn:hover {
+            opacity: 0.9;
+        }
+        
+        /* Reset button */
+        .reset-btn {
+            margin-top: 20px;
+            padding: 10px;
+            background: linear-gradient(to bottom, #ff6b6b, #ff5252);
+            color: white;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            width: 100%;
+            font-weight: bold;
+            box-shadow: 0 3px 6px rgba(255, 107, 107, 0.3);
+            transition: all 0.2s ease;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .reset-btn:hover {
+            background: linear-gradient(to bottom, #ff5252, #ff4242);
+            box-shadow: 0 4px 8px rgba(255, 82, 82, 0.4);
+            transform: translateY(-1px);
+        }
+        
+        .reset-btn:active {
+            transform: translateY(1px);
+            box-shadow: 0 2px 4px rgba(255, 82, 82, 0.4);
+        }
+        
+        /* Animations */
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+        
+        .fade-in {
+            animation: fadeIn 0.3s ease-in;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>Mario Party Jamboree</h1>
+            <h2>Star Tracker</h2>
+            <div class="made-by">Made by xRyann_</div>
+            <button class="mode-toggle" id="mode-toggle">🌙</button>
+        </div>
+        
+        <div class="grid">
+            <div class="card">
+                <div class="card-header">
+                    <div class="card-title">Select Characters</div>
+                </div>
+                
+                <div class="character-selector" id="character-selector">
+                    <!-- Character items will be populated by JavaScript -->
+                </div>
+                
+                <div class="blue-space-options">
+                    <span>Blue Space Value:</span>
+                    <label>
+                        <input type="checkbox" id="last-five-turns">
+                        Last 5 Turns (x2)
+                    </label>
+                    <label>
+                        <input type="checkbox" id="double-event">
+                        Double Event (x2)
+                    </label>
+                    <div class="blue-space-value" id="blue-space-value">3 coins</div>
+                </div>
+                
+                <div class="data-grid">
+                    <div class="data-card">
+                        <div class="data-title">Rich Star (Coins Gained)</div>
+                        <table class="data-table" id="coins-table">
+                            <thead>
+                                <tr>
+                                    <th>Character</th>
+                                    <th>Coins</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <!-- Rows will be populated by JavaScript -->
+                            </tbody>
+                        </table>
+                        
+                        <div class="data-title" style="margin-top: 15px;">Quick Add Coins</div>
+                        <div class="direct-input-grid" id="direct-input-grid">
+                            <!-- Direct input items will be populated by JavaScript -->
+                        </div>
+                    </div>
+                    
+                    <div class="data-card">
+                        <div class="data-title">Event Star (Event Spaces)</div>
+                        <table class="data-table" id="events-table">
+                            <thead>
+                                <tr>
+                                    <th>Character</th>
+                                    <th>Spaces</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <!-- Rows will be populated by JavaScript -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+                
+                <div class="history">
+                    <div class="data-title">History</div>
+                    <div class="history-list" id="history-list">
+                        <!-- History items will be populated by JavaScript -->
+                    </div>
+                </div>
+                
+                <button class="reset-btn" id="reset-btn">Reset All Data</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Character definitions with color codes
+            const characters = [
+                { id: "mario", name: "Mario", color: "#e60012" },
+                { id: "luigi", name: "Luigi", color: "#4caf50" },
+                { id: "peach", name: "Peach", color: "#ffb6c1" },
+                { id: "daisy", name: "Daisy", color: "#ffa500" },
+                { id: "wario", name: "Wario", color: "#9c7e09" },
+                { id: "waluigi", name: "Waluigi", color: "#7b1fa2" },
+                { id: "rosalina", name: "Rosalina", color: "#00bcd4" },
+                { id: "yoshi", name: "Yoshi", color: "#8bc34a" },
+                { id: "birdo", name: "Birdo", color: "#ff80ab" },
+                { id: "bowser", name: "Bowser", color: "#f44336" },
+                { id: "bowserjr", name: "Bowser Jr.", color: "#2196f3" },
+                { id: "toad", name: "Toad", color: "#2962ff" },
+                { id: "toadette", name: "Toadette", color: "#ff4081" },
+                { id: "donkeykong", name: "Donkey Kong", color: "#795548" },
+                { id: "koopa", name: "Koopa Troopa", color: "#8bc34a" },
+                { id: "boo", name: "Boo", color: "#e0e0e0" },
+                { id: "shyguy", name: "Shy Guy", color: "#f44336" },
+                { id: "goomba", name: "Goomba", color: "#8d6e63" },
+                { id: "spike", name: "Spike", color: "#ffc107" },
+                { id: "monty", name: "Monty Mole", color: "#795548" },
+                { id: "ninji", name: "Ninji", color: "#303f9f" },
+                { id: "pauline", name: "Pauline", color: "#b71c1c" }
+            ];
+            
+            // Game state
+            let gameState = {
+                players: {},
+                selectedCharacters: [],
+                history: []
+            };
+            
+            // DOM Elements
+            const characterSelector = document.getElementById('character-selector');
+            const coinsTable = document.getElementById('coins-table').querySelector('tbody');
+            const eventsTable = document.getElementById('events-table').querySelector('tbody');
+            const historyList = document.getElementById('history-list');
+            const modeToggle = document.getElementById('mode-toggle');
+            const resetBtn = document.getElementById('reset-btn');
+            const directInputGrid = document.getElementById('direct-input-grid');
+            
+            // Blue space elements
+            const lastFiveTurns = document.getElementById('last-five-turns');
+            const doubleEvent = document.getElementById('double-event');
+            const blueSpaceValue = document.getElementById('blue-space-value');
+            
+            // Update blue space value based on toggles
+            function updateBlueSpaceValue() {
+                let value = 3;
+                
+                if (lastFiveTurns.checked) {
+                    value *= 2;
+                }
+                
+                if (doubleEvent.checked) {
+                    value *= 2;
+                }
+                
+                blueSpaceValue.textContent = `${value} coins`;
+                
+                // Update all blue space buttons
+                document.querySelectorAll('.blue-space-btn').forEach(btn => {
+                    btn.textContent = `+${value}`;
+                });
+                
+                return value;
+            }
+            
+            // Add event listeners to blue space toggles
+            lastFiveTurns.addEventListener('change', updateBlueSpaceValue);
+            doubleEvent.addEventListener('change', updateBlueSpaceValue);
+            
+            // Initialize the game state
+            function initializeGame() {
+                // Initialize player data for all characters
+                characters.forEach(character => {
+                    gameState.players[character.id] = {
+                        name: character.name,
+                        color: character.color,
+                        coins: 10,
+                        events: 0
+                    };
+                });
+                
+                // Set default selected characters
+                gameState.selectedCharacters = ["mario", "luigi", "peach", "daisy"];
+                
+                // Try to load saved state
+                loadGameState();
+                
+                // Set up dark mode based on user preference
+                const prefersDarkMode = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
+                if (prefersDarkMode) {
+                    document.documentElement.setAttribute('data-theme', 'dark');
+                    modeToggle.textContent = '☀️';
+                }
+                
+                // Initialize blue space value
+                updateBlueSpaceValue();
+                
+                // Render UI
+                renderCharacterSelector();
+                updateTables();
+                updateDirectInputGrid();
+                updateHistory();
+            }
+            
+            // Render character selector
+            function renderCharacterSelector() {
+                characterSelector.innerHTML = '';
+                
+                characters.forEach(character => {
+                    const item = document.createElement('div');
+                    item.className = 'character-item';
+                    if (gameState.selectedCharacters.includes(character.id)) {
+                        item.classList.add('selected');
+                    }
+                    item.dataset.id = character.id;
+                    
+                    // Create a styled div instead of using an image
+                    const characterIcon = document.createElement('div');
+                    characterIcon.className = 'character-image';
+                    characterIcon.style.backgroundColor = character.color;
+                    characterIcon.style.border = '2px solid ' + adjustColor(character.color, -30);
+                    characterIcon.textContent = character.name.charAt(0);
+                    characterIcon.style.color = getContrastColor(character.color);
+                    characterIcon.style.display = 'flex';
+                    characterIcon.style.alignItems = 'center';
+                    characterIcon.style.justifyContent = 'center';
+                    characterIcon.style.fontWeight = 'bold';
+                    
+                    item.appendChild(characterIcon);
+                    item.appendChild(document.createTextNode(character.name));
+                    
+                    item.addEventListener('click', () => toggleCharacter(character.id));
+                    
+                    characterSelector.appendChild(item);
+                });
+            }
+            
+            // Toggle character selection
+            function toggleCharacter(id) {
+                const index = gameState.selectedCharacters.indexOf(id);
+                if (index === -1) {
+                    gameState.selectedCharacters.push(id);
+                } else {
+                    gameState.selectedCharacters.splice(index, 1);
+                }
+                
+                renderCharacterSelector();
+                updateTables();
+                updateDirectInputGrid();
+                saveGameState();
+            }
+            
+            // Update tables
+            function updateTables() {
+                // Update coins table
+                coinsTable.innerHTML = '';
+                gameState.selectedCharacters.forEach(id => {
+                    const player = gameState.players[id];
+                    
+                    const row = document.createElement('tr');
+                    
+                    // Character info
+                    const characterCell = document.createElement('td');
+                    const characterInfo = document.createElement('div');
+                    characterInfo.className = 'character-info';
+                    
+                    // Create a styled div instead of using an image
+                    const characterIcon = document.createElement('div');
+                    characterIcon.className = 'character-image';
+                    characterIcon.style.backgroundColor = player.color;
+                    characterIcon.style.border = '2px solid ' + adjustColor(player.color, -30);
+                    characterIcon.textContent = player.name.charAt(0);
+                    characterIcon.style.color = getContrastColor(player.color);
+                    characterIcon.style.display = 'flex';
+                    characterIcon.style.alignItems = 'center';
+                    characterIcon.style.justifyContent = 'center';
+                    characterIcon.style.fontWeight = 'bold';
+                    
+                    characterInfo.appendChild(characterIcon);
+                    characterInfo.appendChild(document.createTextNode(player.name));
+                    characterCell.appendChild(characterInfo);
+                    
+                    // Coins cell
+                    const coinsCell = document.createElement('td');
+                    coinsCell.textContent = player.coins;
+                    
+                    // Actions cell
+                    const actionsCell = document.createElement('td');
+                    const controls = document.createElement('div');
+                    controls.className = 'coin-controls';
+                    
+                    const minusBtn = document.createElement('button');
+                    minusBtn.className = 'control-btn';
+                    minusBtn.textContent = '-';
+                    minusBtn.addEventListener('click', () => adjustCoins(id, -1));
+                    
+                    const plusBtn = document.createElement('button');
+                    plusBtn.className = 'control-btn';
+                    plusBtn.textContent = '+';
+                    plusBtn.addEventListener('click', () => adjustCoins(id, 1));
+                    
+                    const blueSpaceBtn = document.createElement('button');
+                    blueSpaceBtn.className = 'blue-space-btn';
+                    const blueValue = updateBlueSpaceValue();
+                    blueSpaceBtn.textContent = `+${blueValue}`;
+                    blueSpaceBtn.addEventListener('click', () => {
+                        const value = updateBlueSpaceValue();
+                        adjustCoins(id, value, true);
+                    });
+                    
+                    controls.appendChild(minusBtn);
+                    controls.appendChild(plusBtn);
+                    controls.appendChild(blueSpaceBtn);
+                    actionsCell.appendChild(controls);
+                    
+                    row.appendChild(characterCell);
+                    row.appendChild(coinsCell);
+                    row.appendChild(actionsCell);
+                    
+                    coinsTable.appendChild(row);
+                });
+                
+                // Update events table
+                eventsTable.innerHTML = '';
+                gameState.selectedCharacters.forEach(id => {
+                    const player = gameState.players[id];
+                    
+                    const row = document.createElement('tr');
+                    
+                    // Character info
+                    const characterCell = document.createElement('td');
+                    const characterInfo = document.createElement('div');
+                    characterInfo.className = 'character-info';
+                    
+                    // Create a styled div instead of using an image
+                    const characterIcon = document.createElement('div');
+                    characterIcon.className = 'character-image';
+                    characterIcon.style.backgroundColor = player.color;
+                    characterIcon.style.border = '2px solid ' + adjustColor(player.color, -30);
+                    characterIcon.textContent = player.name.charAt(0);
+                    characterIcon.style.color = getContrastColor(player.color);
+                    characterIcon.style.display = 'flex';
+                    characterIcon.style.alignItems = 'center';
+                    characterIcon.style.justifyContent = 'center';
+                    characterIcon.style.fontWeight = 'bold';
+                    
+                    characterInfo.appendChild(characterIcon);
+                    characterInfo.appendChild(document.createTextNode(player.name));
+                    characterCell.appendChild(characterInfo);
+                    
+                    // Events cell
+                    const eventsCell = document.createElement('td');
+                    eventsCell.textContent = player.events;
+                    
+                    // Actions cell
+                    const actionsCell = document.createElement('td');
+                    const controls = document.createElement('div');
+                    controls.className = 'event-controls';
+                    
+                    const minusBtn = document.createElement('button');
+                    minusBtn.className = 'control-btn';
+                    minusBtn.textContent = '-';
+                    minusBtn.disabled = player.events <= 0;
+                    minusBtn.addEventListener('click', () => adjustEvents(id, -1));
+                    
+                    const plusBtn = document.createElement('button');
+                    plusBtn.className = 'event-btn';
+                    plusBtn.innerHTML = '!';
+                    // Apply styles directly to ensure they're applied
+                    plusBtn.style.backgroundColor = '#4CAF50';
+                    plusBtn.style.color = 'white';
+                    plusBtn.style.border = 'none';
+                    plusBtn.style.width = '28px';
+                    plusBtn.style.height = '28px';
+                    plusBtn.style.borderRadius = '50%';
+                    plusBtn.style.cursor = 'pointer';
+                    plusBtn.style.fontWeight = 'bold';
+                    plusBtn.style.display = 'flex';
+                    plusBtn.style.alignItems = 'center';
+                    plusBtn.style.justifyContent = 'center';
+                    plusBtn.style.transition = 'all 0.2s';
+                    plusBtn.addEventListener('click', () => adjustEvents(id, 1));
+                    
+                    controls.appendChild(minusBtn);
+                    controls.appendChild(plusBtn);
+                    actionsCell.appendChild(controls);
+                    
+                    row.appendChild(characterCell);
+                    row.appendChild(eventsCell);
+                    row.appendChild(actionsCell);
+                    
+                    eventsTable.appendChild(row);
+                });
+            }
+            
+            // Update direct input grid
+            function updateDirectInputGrid() {
+                directInputGrid.innerHTML = '';
+                
+                gameState.selectedCharacters.forEach(id => {
+                    const player = gameState.players[id];
+                    
+                    const item = document.createElement('div');
+                    item.className = 'direct-input-item';
+                    
+                    const info = document.createElement('div');
+                    info.className = 'character-info';
+                    
+                    const characterIcon = document.createElement('div');
+                    characterIcon.className = 'character-image';
+                    characterIcon.style.backgroundColor = player.color;
+                    characterIcon.style.border = '2px solid ' + adjustColor(player.color, -30);
+                    characterIcon.textContent = player.name.charAt(0);
+                    characterIcon.style.color = getContrastColor(player.color);
+                    characterIcon.style.display = 'flex';
+                    characterIcon.style.alignItems = 'center';
+                    characterIcon.style.justifyContent = 'center';
+                    characterIcon.style.fontWeight = 'bold';
+                    
+                    info.appendChild(characterIcon);
+                    info.appendChild(document.createTextNode(player.name));
+                    
+                    const input = document.createElement('input');
+                    input.type = 'number';
+                    input.min = '1';
+                    input.value = '5';
+                    
+                    const addBtn = document.createElement('button');
+                    addBtn.textContent = 'Add';
+                    addBtn.addEventListener('click', () => {
+                        const amount = parseInt(input.value);
+                        if (!isNaN(amount) && amount > 0) {
+                            adjustCoins(id, amount);
+                            input.value = '5'; // Reset to default value
+                        }
+                    });
+                    
+                    item.appendChild(info);
+                    item.appendChild(input);
+                    item.appendChild(addBtn);
+                    
+                    directInputGrid.appendChild(item);
+                });
+            }
+            
+            // Adjust coins
+            function adjustCoins(id, amount, isBlueSpace = false) {
+                gameState.players[id].coins += amount;
+                if (gameState.players[id].coins < 0) {
+                    gameState.players[id].coins = 0;
+                }
+                
+                let description;
+                if (isBlueSpace) {
+                    const blueValue = updateBlueSpaceValue();
+                    description = `Blue Space: ${gameState.players[id].name} +${blueValue} coins`;
+                } else {
+                    description = `${amount > 0 ? '+' : ''}${amount} coin${Math.abs(amount) !== 1 ? 's' : ''} for ${gameState.players[id].name}`;
+                }
+                
+                addToHistory({
+                    type: 'coins',
+                    characterId: id,
+                    amount: amount,
+                    isBlueSpace: isBlueSpace,
+                    description: description
+                });
+                
+                updateTables();
+                saveGameState();
+            }
+            
+            // Adjust events
+            function adjustEvents(id, amount) {
+                gameState.players[id].events += amount;
+                if (gameState.players[id].events < 0) {
+                    gameState.players[id].events = 0;
+                }
+                
+                addToHistory({
+                    type: 'events',
+                    characterId: id,
+                    amount: amount,
+                    description: `${amount > 0 ? '+' : ''}${amount} event space${Math.abs(amount) !== 1 ? 's' : ''} for ${gameState.players[id].name}`
+                });
+                
+                updateTables();
+                saveGameState();
+            }
+            
+            // Add to history
+            function addToHistory(action) {
+                gameState.history.unshift({
+                    id: Date.now(),
+                    timestamp: new Date().toLocaleTimeString(),
+                    ...action
+                });
+                
+                updateHistory();
+            }
+            
+            // Update history display
+            function updateHistory() {
+                historyList.innerHTML = '';
+                
+                // Filter out undo actions
+                const filteredHistory = gameState.history.filter(item => item.type !== 'undo');
+                
+                if (filteredHistory.length === 0) {
+                    const emptyItem = document.createElement('div');
+                    emptyItem.className = 'history-item';
+                    emptyItem.textContent = 'No actions yet';
+                    historyList.appendChild(emptyItem);
+                    return;
+                }
+                
+                filteredHistory.slice(0, 10).forEach((item, index) => { // Show only last 10 items
+                    const historyItem = document.createElement('div');
+                    historyItem.className = 'history-item';
+                    
+                    const description = document.createElement('div');
+                    description.textContent = item.description;
+                    
+                    const actionDiv = document.createElement('div');
+                    actionDiv.className = 'history-action';
+                    
+                    const timestamp = document.createElement('span');
+                    timestamp.textContent = item.timestamp;
+                    timestamp.style.fontSize = '0.8rem';
+                    timestamp.style.color = '#888';
+                    
+                    const undoBtn = document.createElement('button');
+                    undoBtn.className = 'undo-btn';
+                    undoBtn.textContent = 'Undo';
+                    
+                    // Don't allow undoing reset actions
+                    if (item.type === 'reset') {
+                        undoBtn.disabled = true;
+                        undoBtn.style.opacity = '0.5';
+                        undoBtn.style.cursor = 'not-allowed';
+                    } else {
+                        // We need to find the actual index in the full history array
+                        const actualIndex = gameState.history.findIndex(h => h.id === item.id);
+                        undoBtn.addEventListener('click', () => undoAction(actualIndex));
+                    }
+                    
+                    actionDiv.appendChild(timestamp);
+                    actionDiv.appendChild(undoBtn);
+                    
+                    historyItem.appendChild(description);
+                    historyItem.appendChild(actionDiv);
+                    
+                    historyList.appendChild(historyItem);
+                });
+            }
+            
+            // Undo an action
+            function undoAction(index) {
+                const action = gameState.history[index];
+                
+                if (action.type === 'coins') {
+                    gameState.players[action.characterId].coins -= action.amount;
+                    if (gameState.players[action.characterId].coins < 0) {
+                        gameState.players[action.characterId].coins = 0;
+                    }
+                } else if (action.type === 'events') {
+                    gameState.players[action.characterId].events -= action.amount;
+                    if (gameState.players[action.characterId].events < 0) {
+                        gameState.players[action.characterId].events = 0;
+                    }
+                } else if (action.type === 'reset') {
+                    // Can't undo a reset
+                    return;
+                }
+                
+                // Remove the action from history
+                gameState.history.splice(index, 1);
+                
+                // Add an undo record
+                gameState.history.unshift({
+                    id: Date.now(),
+                    timestamp: new Date().toLocaleTimeString(),
+                    type: 'undo',
+                    description: `Undid: ${action.description}`
+                });
+                
+                updateTables();
+                updateHistory();
+                saveGameState();
+            }
+            
+            // Reset button click
+            resetBtn.addEventListener('click', function() {
+                if (confirm('Are you sure you want to reset all data? This cannot be undone.')) {
+                    // Reset all player data
+                    characters.forEach(character => {
+                        gameState.players[character.id].coins = 10;
+                        gameState.players[character.id].events = 0;
+                    });
+                    
+                    // Add reset record to history
+                    gameState.history = [{
+                        id: Date.now(),
+                        timestamp: new Date().toLocaleTimeString(),
+                        type: 'reset',
+                        description: 'Reset all data'
+                    }];
+                    
+                    updateTables();
+                    updateDirectInputGrid();
+                    updateHistory();
+                    saveGameState();
+                }
+            });
+            
+            // Dark mode toggle
+            modeToggle.addEventListener('click', function() {
+                const currentTheme = document.documentElement.getAttribute('data-theme');
+                if (currentTheme === 'dark') {
+                    document.documentElement.removeAttribute('data-theme');
+                    this.textContent = '🌙';
+                } else {
+                    document.documentElement.setAttribute('data-theme', 'dark');
+                    this.textContent = '☀️';
+                }
+            });
+            
+            // Save game state
+            function saveGameState() {
+                try {
+                    localStorage.setItem('marioPartyMinimal', JSON.stringify(gameState));
+                } catch (e) {
+                    console.error('Failed to save game state:', e);
+                }
+            }
+            
+            // Load game state
+            function loadGameState() {
+                try {
+                    const savedState = localStorage.getItem('marioPartyMinimal');
+                    if (savedState) {
+                        const loadedState = JSON.parse(savedState);
+                        
+                        // Merge saved state with initial state to handle any missing properties
+                        gameState.selectedCharacters = loadedState.selectedCharacters || gameState.selectedCharacters;
+                        gameState.history = loadedState.history || gameState.history;
+                        
+                        // Update player data
+                        if (loadedState.players) {
+                            for (const id in gameState.players) {
+                                if (loadedState.players[id]) {
+                                    gameState.players[id].coins = loadedState.players[id].coins || 10;
+                                    gameState.players[id].events = loadedState.players[id].events || 0;
+                                }
+                            }
+                        }
+                    }
+                } catch (e) {
+                    console.error('Failed to load game state:', e);
+                }
+            }
+            
+            // Helper function to adjust color brightness
+            function adjustColor(color, amount) {
+                // Remove the # if present
+                color = color.replace('#', '');
+                
+                // Parse the color components
+                let r = parseInt(color.substring(0, 2), 16);
+                let g = parseInt(color.substring(2, 4), 16);
+                let b = parseInt(color.substring(4, 6), 16);
+                
+                // Adjust the brightness
+                r = Math.max(0, Math.min(255, r + amount));
+                g = Math.max(0, Math.min(255, g + amount));
+                b = Math.max(0, Math.min(255, b + amount));
+                
+                // Convert back to hex
+                return `#${r.toString(16).padStart(2, '0')}${g.toString(16).padStart(2, '0')}${b.toString(16).padStart(2, '0')}`;
+            }
+            
+            // Helper function to get contrasting text color (black or white)
+            function getContrastColor(hexColor) {
+                // Remove # if present
+                hexColor = hexColor.replace('#', '');
+                
+                // Convert to RGB
+                const r = parseInt(hexColor.substr(0, 2), 16);
+                const g = parseInt(hexColor.substr(2, 2), 16);
+                const b = parseInt(hexColor.substr(4, 2), 16);
+                
+                // Calculate luminance
+                const luminance = (0.299 * r + 0.587 * g + 0.114 * b) / 255;
+                
+                // Return black for bright colors, white for dark colors
+                return luminance > 0.5 ? '#000000' : '#FFFFFF';
+            }
+            
+            // Initialize the game
+            initializeGame();
+        });
+    </script>
+</body>
+</html>
